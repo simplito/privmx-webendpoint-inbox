@@ -1,0 +1,14 @@
+.settings
+custom-typings
+node_modules
+src
+test
+typings
+.buildpath
+.gitignore
+.npmignore
+.project
+gulpfile.js
+tsconfig.json
+typings.json
+package-lock.json

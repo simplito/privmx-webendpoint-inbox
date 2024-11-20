@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta enc="utf8" />
+    <script src="./build/privmx-rpc.min-x.js"></script>
+    <script type="text/javascript">
+        require("privmx-rpc").inbox.test({
+            url: `http://lukas2/api/v2.0`,
+            solutionId: "wqwqeqweqweqwe",
+            inboxId: "673dc11c41b63bba78cd8cff",
+        }).then(() => console.log("OK"), e => console.log("Error", e));
+    </script>
+</head>
+<body>
+</body>
+</html>
