@@ -3,6 +3,9 @@ import { ResponseReader } from "./ResponseReader";
 import { RpcRequest } from "./RpcRequest";
 import * as Ecc from "./crypto/ecc";
 import { WebSocketChannel } from "./WebSocketChannel";
+import { AuthorizedConnection } from "./AuthorizedConnection";
+import { ConnectionManager } from "./ConnectionManager";
+
 
 export type GatewayProperties = {[name: string]: any}
 
@@ -433,9 +436,16 @@ export interface KeyHandshakeResult {
 
 export interface EcdheHandshakeResult {
     tickets: Ticket[];
+    config: {requestChunkSize: number};
 }
 
 export interface EcdhexHandshakeResult {
     tickets: Ticket[];
     host: string;
+}
+
+export interface Connection {
+    connectionNative: AuthorizedConnection;
+    userPrivKey: Ecc.PrivateKey;
+    connectionManager: ConnectionManager;
 }

@@ -23,7 +23,8 @@ export class EcdheService {
                 const derived = this.deriveKey(key.key, frame.data.key);
                 const tickets = await reader.switchToPreMasterAndReadTickets(derived, request);
                 const result: EcdheHandshakeResult = {
-                    tickets: tickets
+                    tickets: tickets,
+                    config: (frame.data as any).config
                 };
                 return result;
             }

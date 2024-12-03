@@ -60,6 +60,7 @@ export class PublicKey {
     }
     
     verifyCompactSignature(message: Buffer, signature: Buffer): boolean {
+        console.log("sig length: ", signature.length);
         if (signature.length !== 65) {
             throw new Error("Invalid signature length");
         }
@@ -72,6 +73,11 @@ export class PublicKey {
             recoveryParam: recoveryParam
         });
         return this.key.verify(message, sig);
+    }
+
+    async verifyCompactSignatureWithHash(message: Buffer, signature: Buffer): Promise<boolean> {
+        const hash = await CryptoService.sha256(message);
+        return this.verifyCompactSignature(hash, signature);
     }
     
     equals(other: PublicKey): boolean {

@@ -13,7 +13,7 @@ import { SenderEx } from "./Sender";
 import { RpcUtils } from "./RpcUtils";
 
 export class ConnectionManager {
-    
+    private requestChunkSize: number; 
     constructor(
         private loginService: LoginService,
         private senderFactory: SenderFactory,
@@ -21,6 +21,10 @@ export class ConnectionManager {
     ) {
     }
     
+    getRequestChunkSize() {
+        return this.requestChunkSize;
+    }
+
     async createEcdheConnection(auth: EcdheOptions, options: ConnectionOptions): Promise<AuthorizedConnection> {
         const fullOptions = this.fillOptions(options);
         const key = auth.key || CryptoService.eccPrivRandom();
@@ -33,6 +37,7 @@ export class ConnectionManager {
             appCredentials: fullOptions.appCredentials,
             solution: auth.solution,
         });
+        this.requestChunkSize = result.config.requestChunkSize;
         return this.createAuthorizedConnection(channel, fullOptions, {
             type: "ecdhe",
             key: key.getPublicKey()
