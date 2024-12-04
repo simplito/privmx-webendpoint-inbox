@@ -1,9 +1,12 @@
+import { EncryptedFileMetaV4 } from "./FileMetaEncryptorV4";
+import { InboxPrivateDataV4, InboxPublicDataV4 } from "./InboxDataProcessor";
+
 export interface InboxData {
     threadId: string;
     storeId: string;
     fileConfig: FilesConfig;
-    meta: Buffer;
-    publicData: Buffer;
+    meta: InboxPrivateDataV4;
+    publicData: InboxPublicDataV4;
 }
 
 export interface FilesConfig {
@@ -44,7 +47,7 @@ export interface CreateRequestResult {
 export interface InboxFile {
     fileIndex: number;
     thumbIndex?: number;
-    meta: Buffer;
+    meta: EncryptedFileMetaV4;
 }
 
 export interface InternalStoreFileMeta {
@@ -66,7 +69,7 @@ export interface FileMetaToEncrypt {
 export interface InboxSendModel {
     inboxId: string;
     files: InboxFile[];
-    message: Buffer;
+    message: string;
     requestId?: string;
     version: number;
 }

@@ -30,6 +30,14 @@ export class FileHandle {
     protected _storeId: string;
     protected _fileId: string;
     protected _size: number;
+    protected _id: number;
+
+    constructor(id: number, storeId: string, fileId: string, size: number) {
+        this._id = id;
+        this._fileId = fileId;
+        this._size = size;
+        this._storeId = storeId;
+    }
 
     isReadHandle(): boolean {
         return false;
@@ -72,8 +80,10 @@ export class FileWriteHandle extends FileHandle {
     private _stream: ChunkBufferedStream;
     private _streamer: ChunkStreamer;
 
-    constructor(options: FileWriteHandleOptions) {
-        super();
+    constructor(options: FileWriteHandleOptions & {id: number}) {
+        super(options.id, options.storeId, options.fileId, options.size);
+        this._publicMeta = options.publicMeta;
+        this._privateMeta = options.privateMeta;
         this._stream = new ChunkBufferedStream(options.chunkSize, options.size);
         this._streamer = new ChunkStreamer(
             options.requestApi,
@@ -160,7 +170,7 @@ export class FileHandleManager {
     
     async createFileWriteHandle(options: FileWriteHandleOptions): Promise<{id: number, handle: FileWriteHandle}> {
         const id = HandleManager.get().createHandle((!this._labelPrefix || this._labelPrefix.length === 0 ? "" : this._labelPrefix + ":") + "FileWrite");
-        const result = new FileWriteHandle(options);
+        const result = new FileWriteHandle({...options, id: id});
         this._map[id] = result;
         return {id: id, handle: result};
     }

@@ -19,16 +19,16 @@ export class FileMetaEncryptorV4 {
         try {
             publicMetaObject = JSON.parse(
                 // new TextDecoder().decode(fileMeta.publicMeta)
-                fileMeta.publicMeta as string
+                fileMeta.publicMeta.toString()
             );
         } catch (_e) {}
-        console.log(17.5);
+        console.log(17.5, {fileMeta: fileMeta});
         console.log("test", {bufferfrompublicmeta: Buffer.from(fileMeta.publicMeta)});
         const result: EncryptedFileMetaV4 = {
             version: 4,
-            publicMeta: await DataEncryptorV4.signAndEncode(Buffer.from(fileMeta.publicMeta), authorPrivateKey),
+            publicMeta: await DataEncryptorV4.signAndEncode(fileMeta.publicMeta, authorPrivateKey),
             publicMetaObject: publicMetaObject,
-            privateMeta: await DataEncryptorV4.signAndEncryptAndEncode(Buffer.from(fileMeta.privateMeta), authorPrivateKey, encryptionKey),
+            privateMeta: await DataEncryptorV4.signAndEncryptAndEncode(fileMeta.privateMeta, authorPrivateKey, encryptionKey),
             fileSize: await DataEncryptorV4.signAndEncryptAndEncode(this.serializeNumber(fileMeta.fileSize), authorPrivateKey, encryptionKey),
             internalMeta: await DataEncryptorV4.signAndEncryptAndEncode(fileMeta.internalMeta, authorPrivateKey, encryptionKey),
             authorPubKey: await authorPrivateKey.getPublicKey().toBase58DER()

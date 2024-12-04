@@ -45,11 +45,11 @@ export class InboxEntriesDataEncryptorSerializer {
             this.serializeBool(data.publicData.keyPreset),
             this.serializeString(data.publicData.usedInboxKeyId)
         ]);
-
+        console.log("packMessage debug", data.privateData.text.toString());
         const filesMetaKeyBase64 = Buffer.from(data.privateData.filesMetaKey).toString("base64");
         const dataSecuredBuffer = Buffer.concat([
             this.serializeString(filesMetaKeyBase64),
-            Buffer.from(data.privateData.text)
+            data.privateData.text
         ]);
 
         // encrypt secured part with ecies

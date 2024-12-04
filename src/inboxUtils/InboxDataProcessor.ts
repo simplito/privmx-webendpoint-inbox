@@ -25,8 +25,8 @@ export interface InboxPrivateDataAsResult extends InboxPrivateData {
 
 export interface InboxPublicDataV4 {
     version: number;
-    publicMeta: Buffer;
-    publicMetaObject: Buffer;
+    publicMeta: string; // base64-encoded
+    publicMetaObject: unknown;
     authorPubKey: string;
     inboxPubKey: string;
     inboxKeyId: string;
@@ -34,8 +34,8 @@ export interface InboxPublicDataV4 {
 
 export interface InboxPrivateDataV4 {
     version: number;
-    privateMeta: Buffer;
-    internalMeta: Buffer;
+    privateMeta: string; // base64-encoded
+    internalMeta: string; // base64-encoded
     authorPubKey: string;
 }
 
@@ -66,7 +66,7 @@ export class InboxDataProcessor {
         
         const serverPublicData: InboxPublicDataV4 = {
             version: 4,
-            publicMeta: plainData.publicData.publicMeta ? DataEncryptorV4.signAndEncode(Buffer.from(plainData.publicData.publicMeta), authorPrivateKey): null,
+            publicMeta: plainData.publicData.publicMeta ? await DataEncryptorV4.signAndEncode(Buffer.from(plainData.publicData.publicMeta), authorPrivateKey): null,
             publicMetaObject: publicMetaObject,
             authorPubKey: authorPubKeyECC,
             inboxPubKey: plainData.publicData.inboxEntriesPubKeyBase58DER,
@@ -76,13 +76,13 @@ export class InboxDataProcessor {
         const serverPrivateData: InboxPrivateDataV4 = {
             version: 4,
             privateMeta: await DataEncryptorV4.signAndEncryptAndEncode(Buffer.from(plainData.privateData.privateMeta), authorPrivateKey, Buffer.from(inboxKey)),
-            internalMeta: plainData.privateData.internalMeta ? DataEncryptorV4.signAndEncryptAndEncode(plainData.privateData.internalMeta, authorPrivateKey, Buffer.from(inboxKey)): null,
+            internalMeta: plainData.privateData.internalMeta ? await DataEncryptorV4.signAndEncryptAndEncode(plainData.privateData.internalMeta, authorPrivateKey, Buffer.from(inboxKey)): null,
             authorPubKey: authorPubKeyECC
         };
 
         return <ServerTypes.InboxData> {
-            threadId: plainData.storeId,
-            storeId: plainData.threadId,
+            threadId: plainData.threadId,
+            storeId: plainData.storeId,
             fileConfig: plainData.filesConfig,
             meta: serverPrivateData,
             publicData: serverPublicData
@@ -99,7 +99,7 @@ export class InboxDataProcessor {
     
             const authorPublicKeyECC = await PublicKey.fromBase58DER(publicDataV4.authorPubKey);
 
-            result.publicMeta = await DataEncryptorV4.decodeAndVerify(publicDataV4.publicMeta as string, authorPublicKeyECC);
+            result.publicMeta = await DataEncryptorV4.decodeAndVerify(publicDataV4.publicMeta, authorPublicKeyECC);
 
             if (publicDataV4.publicMetaObject) {
                 const tmp1 = JSON.stringify(JSON.parse(publicDataV4.publicMeta.toString()));
@@ -122,12 +122,12 @@ export class InboxDataProcessor {
         const result: InboxPrivateDataAsResult = {statusCode: 0};
         try {
             this.validateVersion(encryptedData.meta);
-            const privateDataV4 = encryptedData.meta as InboxPrivateDataV4;
+            const privateDataV4 = encryptedData.meta;
             const authorPublicKeyECC = await PublicKey.fromBase58DER(privateDataV4.authorPubKey);
 
-            result.privateMeta = DataEncryptorV4.decodeAndDecryptAndVerify(privateDataV4.privateMeta as string, authorPublicKeyECC, Buffer.from(inboxKey));
+            result.privateMeta = await DataEncryptorV4.decodeAndDecryptAndVerify(privateDataV4.privateMeta, authorPublicKeyECC, Buffer.from(inboxKey));
             result.internalMeta = privateDataV4.internalMeta 
-                ? await DataEncryptorV4.decodeAndDecryptAndVerify(privateDataV4.internalMeta as string, authorPublicKeyECC, Buffer.from(inboxKey))
+                ? await DataEncryptorV4.decodeAndDecryptAndVerify(privateDataV4.internalMeta, authorPublicKeyECC, Buffer.from(inboxKey))
                 : null;
                 result.authorPubKey = privateDataV4.authorPubKey;
     

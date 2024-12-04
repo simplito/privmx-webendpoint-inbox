@@ -118,8 +118,9 @@ export class InboxApi {
     async sendEntry(inboxHandle: number): Promise<void> {
         const conn = this.connection.connectionNative;
         const handle = await this._inboxHandleManager.getInboxHandle(inboxHandle);
-
         const publicView = await conn.call("inbox.inboxGetPublicView", {id: handle.inboxId});
+        console.log("inboxHandle on send", {handle, publicView});
+
         const inboxDataProcessor = new InboxDataProcessor();
 
         const publicData = await inboxDataProcessor.unpackPublic(publicView.publicData);
@@ -154,12 +155,12 @@ export class InboxApi {
                 fileIndex++;
                 const encryptedFileMeta = await FileMetaEncryptorV4.encrypt(await this.prepareMeta(fileInfo), _userPrivKeyECC, filesMetaKey);
                 console.log(18);
-                inboxFiles.push({fileIndex: fileIndex, meta: Buffer.from(JSON.stringify(encryptedFileMeta))})
+                inboxFiles.push({fileIndex: fileIndex, meta: encryptedFileMeta})
             }
             requestId = commitSentInfo.filesInfo[0].fileSendResult.requestId;
         }
-        const serializedMessage = InboxEntriesDataEncryptorSerializer.packMessage(modelForSerializer, _userPrivKeyECC, inboxPubKeyECC);
-        console.log(19);
+        const serializedMessage = await InboxEntriesDataEncryptorSerializer.packMessage(modelForSerializer, _userPrivKeyECC, inboxPubKeyECC);
+        console.log(19, {serializedMessage, deserialized: Buffer.from(serializedMessage, "base64").toString()});
         // prepare server model
         const model: ServerTypes.InboxSendModel = {
             inboxId: handle.inboxId,
@@ -168,7 +169,7 @@ export class InboxApi {
             version: 1,
             requestId: requestId
         }
-        console.log(20)
+        console.log(20, {model})
         await conn.call("inbox.inboxSend", model);
         console.log(21);
     }
@@ -213,8 +214,8 @@ export class InboxApi {
             storeId: "",
             fileId: "",
             size: fileSize,
-            publicMeta: publicMeta,
-            privateMeta: privateMeta,
+            publicMeta: Buffer.from(publicMeta),
+            privateMeta: Buffer.from(privateMeta),
             chunkSize: CHUNK_SIZE,
             serverRequestChunkSize: this.connection.connectionManager.getRequestChunkSize(),
             requestApi: requestApi

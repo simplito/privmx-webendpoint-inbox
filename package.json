@@ -8,7 +8,8 @@
   "scripts": {
     "compile": "rm -rf dist && ./node_modules/.bin/tsc",
     "watch": "rm -rf dist && ./node_modules/.bin/tsc -w",
-    "bundle": "./scripts/build.sh"
+    "bundle": "./scripts/build.sh",
+    "test-deploy": "npm run compile && npm run bundle && cp -R ./public/build/privmx-rpc.min-x.js ../../formee-minimal-server/src/wasmAssets"
   },
   "repository": {
     "type": "git",
