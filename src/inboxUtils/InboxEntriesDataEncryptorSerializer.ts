@@ -45,6 +45,9 @@ export class InboxEntriesDataEncryptorSerializer {
             this.serializeBool(data.publicData.keyPreset),
             this.serializeString(data.publicData.usedInboxKeyId)
         ]);
+        console.log("userPubKey", data.publicData.userPubKey, "\nserialized: ", this.serializeString(data.publicData.userPubKey).toString(), "length: ", data.publicData.userPubKey.length, this.serializeString(data.publicData.userPubKey).toString().length);
+        console.log("inboxKeyId", data.publicData.usedInboxKeyId, "\nserialized: ", this.serializeString(data.publicData.usedInboxKeyId).toString());
+        console.log("sendDataBuffer", sendDataBuffer.toString(), "\nserialized:", this.serializeString(sendDataBuffer.toString()).toString());
         console.log("packMessage debug", data.privateData.text.toString());
         const filesMetaKeyBase64 = Buffer.from(data.privateData.filesMetaKey).toString("base64");
         const dataSecuredBuffer = Buffer.concat([
@@ -58,6 +61,7 @@ export class InboxEntriesDataEncryptorSerializer {
         const cipherWithKey = Buffer.from(
             "e" + userPriv.getPublicKey().toDER() + inboxPub.toDER() + cipher.toString()
         );
+    
         const concatBuffer = Buffer.concat([
             this.serializeString(sendDataBuffer.toString()),
             cipherWithKey
