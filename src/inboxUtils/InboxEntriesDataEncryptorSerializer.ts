@@ -63,16 +63,11 @@ export class InboxEntriesDataEncryptorSerializer {
             this.serializeBool(data.publicData.keyPreset),
             this.serializeString(data.publicData.usedInboxKeyId)
         ]);
-        console.log("userPubKey", data.publicData.userPubKey, "\nserialized: ", this.serializeString(data.publicData.userPubKey).toString(), "length: ", data.publicData.userPubKey.length, this.serializeString(data.publicData.userPubKey).toString().length);
-        console.log("inboxKeyId", data.publicData.usedInboxKeyId, "\nserialized: ", this.serializeString(data.publicData.usedInboxKeyId).toString());
-        console.log("sendDataBuffer", sendDataBuffer.toString(), "\nserialized:", this.serializeString(sendDataBuffer.toString()).toString());
-        console.log("packMessage debug", data.privateData.text.toString());
         const filesMetaKeyBase64 = data.privateData.filesMetaKey.toString("base64");
         const dataSecuredBuffer = Buffer.concat([
             this.serializeString(filesMetaKeyBase64),
             data.privateData.text
         ]);
-        console.log("dataSecuredBuffer on packMessage", {dataSecuredBuffer, len: dataSecuredBuffer.length});
 
         // encrypt secured part with ecies
         const ecies = new ECIES(userPriv, inboxPub, {shortTag: true, noKey: true});
@@ -82,17 +77,12 @@ export class InboxEntriesDataEncryptorSerializer {
            userPriv.getPublicKey().toDER(),
            inboxPub.toDER(),
            cipher
-        ]) 
-        // Buffer.from(
-        //     "e" + userPriv.getPublicKey().toDER().toString() + inboxPub.toDER().toString() + cipher.toString()
-        // );
-        console.log({cipherLength: cipher.length, cipherWithKeyLength: cipherWithKey.length});
+        ]);
     
         const concatBuffer = Buffer.concat([
             this.serializeString(sendDataBuffer.toString()),
             cipherWithKey
         ]);
-        console.log("concatBuffer: ", "[" + concatBuffer.toString() + "]", {len: concatBuffer.length});
         return concatBuffer.toString("base64");
     }
     

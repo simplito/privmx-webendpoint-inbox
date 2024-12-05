@@ -70,8 +70,6 @@ export class ChunkStreamer {
             throw new Error("sendChunk: invalidFileChunkSize");
         }
         this._uploadedFileSize += data.length;
-        console.log(6);
-
         return this.prepareAndSendChunk(data);
     }
     
@@ -97,20 +95,10 @@ export class ChunkStreamer {
         if (this._dataProcessed + data.length > this._fileSize) {
             throw new Error("preapareAndSendChunk: InvalidFileChunkSize");
         }
-        console.log(7);
-
         const encrypted = await this.prepareChunk(data);
-        console.log(8);
-
         this._checksums = Buffer.concat([this._checksums, encrypted.hmac]);
-        console.log(9);
-
         this._chunkBufferedStream.write(encrypted.data);
-        console.log(10);
-
         await this.sendFullChunksWhileCollected();
-        console.log(11);
-
         this._dataProcessed += data.length;
         ++this._seq;
     }
@@ -129,9 +117,7 @@ export class ChunkStreamer {
         }
         const fullChunkPaddingSize = CHUNK_PADDING - (this._chunkSize % CHUNK_PADDING);
         const lastChunkPaddingSize = CHUNK_PADDING - (lastChunkSize % CHUNK_PADDING);
-        const serverFileSize = (parts - 1) * (this._chunkSize + HMAC_SIZE + IV_SIZE + fullChunkPaddingSize) + lastChunkSize + HMAC_SIZE + IV_SIZE + lastChunkPaddingSize;
-        
-        console.log("sizes", {parts, lastChunkSize, fullChunkPaddingSize, lastChunkPaddingSize, serverFileSize})
+        const serverFileSize = (parts - 1) * (this._chunkSize + HMAC_SIZE + IV_SIZE + fullChunkPaddingSize) + lastChunkSize + HMAC_SIZE + IV_SIZE + lastChunkPaddingSize;   
         return {
             size: serverFileSize,
             checksumSize: parts * HMAC_SIZE
@@ -173,11 +159,7 @@ export class ChunkStreamer {
     async sendFullChunksWhileCollected(): Promise<void> {
         const n = this._chunkBufferedStream.getNumberOfFullChunks();
         for(let i = 0; i < n; i++) {
-            console.log(12);
-
             await this.sendChunkToServer(this._chunkBufferedStream.getFullChunk(i));
-            console.log(13);
-
         }
         if(n > 0) {
             this._chunkBufferedStream.freeFullChunks();
@@ -198,11 +180,7 @@ export class ChunkStreamer {
             data: data
     
         }
-        console.log(13);
-
         await this._requestApi.sendChunk(chunkModel);
-        console.log(14);
-
         ++this._serverSeq;
     }
     

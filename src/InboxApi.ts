@@ -1,14 +1,3 @@
-/*!
-PrivMX Web Endpoint.
-Copyright © 2024 Simplito sp. z o.o.
-
-This file is part of the PrivMX Platform (https://privmx.dev).
-This software is Licensed under the PrivMX Free License.
-
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import { CryptoService } from "./crypto/Crypto";
 import { PrivateKey, PublicKey } from "./crypto/ecc";
 import { InboxPublicView } from "./InboxTypes";
@@ -91,7 +80,6 @@ export class InboxApi {
                 fileHandles.push(handle);
 
                 const fileSizeInfo = handle.getEncryptedFileSize();
-                console.log("fileSizeInfo", fileSizeInfo);
                 filesList.push({
                     size: fileSizeInfo.size,
                     checksumSize: fileSizeInfo.checksumSize
@@ -119,7 +107,6 @@ export class InboxApi {
         const conn = this.connection.connectionNative;
         const handle = await this._inboxHandleManager.getInboxHandle(inboxHandle);
         const publicView = await conn.call("inbox.inboxGetPublicView", {id: handle.inboxId});
-        console.log("inboxHandle on send", {handle, publicView});
 
         const inboxDataProcessor = new InboxDataProcessor();
 
@@ -150,17 +137,14 @@ export class InboxApi {
         if (hasFiles) {
             let fileIndex = -1;
             const commitSentInfo = await this._inboxHandleManager.commitInboxHandle(inboxHandle);
-            console.log(17);
             for (const fileInfo of commitSentInfo.filesInfo) {
                 fileIndex++;
                 const encryptedFileMeta = await FileMetaEncryptorV4.encrypt(await this.prepareMeta(fileInfo), _userPrivKeyECC, filesMetaKey);
-                console.log(18);
                 inboxFiles.push({fileIndex: fileIndex, meta: encryptedFileMeta})
             }
             requestId = commitSentInfo.filesInfo[0].fileSendResult.requestId;
         }
         const serializedMessage = await InboxEntriesDataEncryptorSerializer.packMessage(modelForSerializer, _userPrivKeyECC, inboxPubKeyECC);
-        console.log(19, {serializedMessage, deserialized: Buffer.from(serializedMessage, "base64").toString()});
         // prepare server model
         const model: ServerTypes.InboxSendModel = {
             inboxId: handle.inboxId,
@@ -169,13 +153,10 @@ export class InboxApi {
             version: 1,
             requestId: requestId
         }
-        console.log(20, {model})
         await conn.call("inbox.inboxSend", model);
-        console.log(21);
     }
 
     private async prepareMeta(commitFileInfo: CommitFileInfo) {
-        console.log(17.1);
         const internalFileMeta: ServerTypes.InternalStoreFileMeta = {
             version: 4,
             size: commitFileInfo.size,
@@ -184,14 +165,12 @@ export class InboxApi {
             key: commitFileInfo.fileSendResult.key.toString("base64"),
             hmac: commitFileInfo.fileSendResult.hmac.toString("base64")
         };
-        console.log(17.2);
         const metaToEncrypt: ServerTypes.FileMetaToEncrypt = {
             publicMeta: commitFileInfo.publicMeta,
             privateMeta: commitFileInfo.privateMeta,
             fileSize: commitFileInfo.size,
             internalMeta: Buffer.from(JSON.stringify(internalFileMeta))
         };
-        console.log(17.3);
         return metaToEncrypt;
     }
 
@@ -241,7 +220,6 @@ export class InboxApi {
         if(handle.inboxFileHandles.length === 0) {
             throw new Error("writeToFile: InboxHandleIsNotTiedToInboxFileHandle");
         }
-        console.log({inboxHandle, inboxFileHandle, dataChunk});
         const fileWriteHandle = this._inboxHandleManager.getFileWriteHandle(inboxFileHandle);
         return fileWriteHandle.write(Buffer.from(dataChunk));
     }

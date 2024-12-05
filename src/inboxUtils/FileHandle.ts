@@ -94,13 +94,10 @@ export class FileWriteHandle extends FileHandle {
     }
 
     async write(data: Buffer): Promise<void> {
-        console.log(1);
         this._stream.write(data);
         for(let i = 0; i < this._stream.getNumberOfFullChunks(); i++) {
-            console.log(2);
             this._streamer.sendChunk(this._stream.getFullChunk(i));
         }
-        console.log(3);
         this._stream.freeFullChunks();
     }
     
@@ -108,9 +105,7 @@ export class FileWriteHandle extends FileHandle {
         if(!this._stream.isFullyFilled()) {
             throw new Error("Data different than declared");
         }
-        console.log("before finalize");
         const result = await this._streamer.finalize(this._stream.readChunk());
-        console.log("after finalize");
         this._size = this._streamer.getUploadedFileSize();
         return result;
     }
@@ -150,23 +145,6 @@ export class FileWriteHandle extends FileHandle {
 export class FileHandleManager {
     private _map: {[id: string]: FileHandle} = {};
     constructor(private _handleManager: HandleManager, private _labelPrefix: string = "") {}
-
-    // std::tuple<int64_t, std::shared_ptr<FileReadHandle>> FileHandleManager::createFileReadHandle(
-    //     const std::string& fileId,
-    //     uint64_t fileSize,
-    //     uint64_t serverFileSize,
-    //     size_t chunkSize,
-    //     size_t serverChunkSize,
-    //     int64_t fileVersion,
-    //     const std::string& fileKey,
-    //     const std::string& fileHmac,
-    //     std::shared_ptr<ServerApi> server
-    // ) {
-    //     int64_t id = _handleManager->createHandle((_labelPrefix.empty() ? "" : _labelPrefix + ":") + "FileRead");
-    //     std::shared_ptr<FileReadHandle> result = std::make_shared<FileReadHandle>(fileId, fileSize, serverFileSize, chunkSize, serverChunkSize, fileVersion, fileKey, fileHmac, server);
-    //     _map.set(id, result);
-    //     return std::make_tuple(id, result);
-    // }
     
     async createFileWriteHandle(options: FileWriteHandleOptions): Promise<{id: number, handle: FileWriteHandle}> {
         const id = HandleManager.get().createHandle((!this._labelPrefix || this._labelPrefix.length === 0 ? "" : this._labelPrefix + ":") + "FileWrite");
@@ -174,14 +152,6 @@ export class FileHandleManager {
         this._map[id] = result;
         return {id: id, handle: result};
     }
-    
-    // std::shared_ptr<FileReadHandle> FileHandleManager::getFileReadHandle(int64_t id) {
-    //     std::shared_ptr<FileHandle> handle = getFileHandle(id);
-    //     if (!handle->isReadHandle()) {
-    //         throw InvalidFileReadHandleException();
-    //     }
-    //     return std::dynamic_pointer_cast<FileReadHandle>(handle);
-    // }
     
     getFileWriteHandle(id: number): FileWriteHandle {
         const handle = this.getFileHandle(id);
@@ -205,6 +175,4 @@ export class FileHandleManager {
         delete this._map[id];
         this._handleManager.removeHandle(id);
     }
-    
-
 }

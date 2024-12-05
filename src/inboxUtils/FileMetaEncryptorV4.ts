@@ -14,7 +14,6 @@ export interface EncryptedFileMetaV4 {
 
 export class FileMetaEncryptorV4 {
     static async encrypt(fileMeta: FileMetaToEncrypt, authorPrivateKey: PrivateKey, encryptionKey: Buffer): Promise<EncryptedFileMetaV4> {
-        console.log(17.4);
         let publicMetaObject: any = null;
         try {
             publicMetaObject = JSON.parse(
@@ -22,8 +21,6 @@ export class FileMetaEncryptorV4 {
                 fileMeta.publicMeta.toString()
             );
         } catch (_e) {}
-        console.log(17.5, {fileMeta: fileMeta});
-        console.log("test", {bufferfrompublicmeta: Buffer.from(fileMeta.publicMeta)});
         const result: EncryptedFileMetaV4 = {
             version: 4,
             publicMeta: await DataEncryptorV4.signAndEncode(fileMeta.publicMeta, authorPrivateKey),
@@ -33,7 +30,6 @@ export class FileMetaEncryptorV4 {
             internalMeta: await DataEncryptorV4.signAndEncryptAndEncode(fileMeta.internalMeta, authorPrivateKey, encryptionKey),
             authorPubKey: await authorPrivateKey.getPublicKey().toBase58DER()
         };
-        console.log(17.6);
         return result;
     }
 

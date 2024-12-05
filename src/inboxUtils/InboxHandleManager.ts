@@ -93,7 +93,6 @@ export class InboxHandleManager {
 
             for(const file_handle of inboxHandle.inboxFileHandles) {
                 const handle = this._fileHandleManager.getFileWriteHandle(file_handle);
-                console.log(15);
                 const file_info: CommitFileInfo = {
                     fileSendResult: await handle.finalize(),
                     fileSize: handle.getEncryptedFileSize(),
@@ -101,7 +100,6 @@ export class InboxHandleManager {
                     publicMeta: handle.getPublicMeta(),
                     privateMeta: handle.getPrivateMeta()    
                 };
-                console.log(16)
                 result.filesInfo.push(file_info);
             }
         }

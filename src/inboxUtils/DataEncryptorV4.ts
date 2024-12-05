@@ -3,10 +3,7 @@ import { DataInnerEncryptorV4 } from "./DataInnerEncryptorV4";
 
 export class DataEncryptorV4 {
     static async signAndEncode(data: Buffer, authorPrivateKey: PrivateKey) {
-        console.log(100.1, {data, authorPrivateKey});
-
         const signedData = await DataInnerEncryptorV4.signAndPackDataWithSignature(data, authorPrivateKey);
-        console.log(100.2, {signedData});
         return DataInnerEncryptorV4.encode(signedData);
     }
     

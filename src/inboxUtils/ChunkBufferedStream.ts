@@ -26,7 +26,6 @@ export class ChunkBufferedStream {
     }
     
     isFullyFilled() {
-        console.log({sizeControl: this._sizeControl, totalDataSize: this._totalDataSize, maxTotalDataSize: this._maxTotalDataSize})
         return this._sizeControl ? this._totalDataSize === this._maxTotalDataSize : false;
     }
 
@@ -42,12 +41,8 @@ export class ChunkBufferedStream {
         if(this._sizeControl && this._totalDataSize + data.length > this._maxTotalDataSize) {
             throw new Error("write: DataBiggerThanDeclared");
         }
-        console.log(4, {currBuf: this._buf, data});
-
         this._buf = Buffer.concat([this._buf, data]);
-        console.log(5);
         this._bufSize += data.length;
-        console.log(1);
         this._totalDataSize += data.length;
     }
     

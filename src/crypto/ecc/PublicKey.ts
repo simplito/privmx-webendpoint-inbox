@@ -60,7 +60,6 @@ export class PublicKey {
     }
     
     verifyCompactSignature(message: Buffer, signature: Buffer): boolean {
-        console.log("sig length: ", signature.length);
         if (signature.length !== 65) {
             throw new Error("Invalid signature length");
         }
