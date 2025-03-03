@@ -1,4 +1,6 @@
-# Build
+# PrivMX Web Endpoint Inbox
+A lightweight, stripped-down version of the [JavaScript library](https://github.com/simplito/privmx-webendpoint) that implements only a subset of the public functions to work with [Inbox](https://docs.privmx.dev/inboxes/overview) in PrivMX.
+## Build
 
 ```
 npm ci
@@ -6,15 +8,15 @@ npm run compile
 npm run bundle
 ```
 
-Open in browser public/index.html
+Open in browser `public/index.html`.
 
-# Develop
+## Develop
 
 ```
 npm run watch
 ```
 
-and after making some changes run
+After making changes, run:
 
 ```
 npm run bundle
@@ -22,8 +24,8 @@ npm run bundle
 
 
 
-# Sample code
-## File `app.js`:
+## Sample code
+### File `app.js`:
 ``` js
 "use strict";
 
@@ -82,7 +84,7 @@ function uInt8ToStr(arr) {
 }
 ```
 
-## File `index.html`:
+### File `index.html`:
 ``` html
 <!DOCTYPE html>
 <html>
